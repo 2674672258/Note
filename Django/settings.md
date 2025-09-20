@@ -40,7 +40,23 @@ Django 的 `settings.py` 是整个项目的大脑，它负责管理项目的全�
     'message',
   ]
   ```
+  django.contrib.admin
+  Django 自带的管理后台。注册了 admin.site、自动发现 admin.py。要启用请在 urls.py 中 path('admin/', admin.site.urls)。
 
+  django.contrib.auth
+  认证、权限框架（User、Permission、登录/登出、密码哈希等）。如果你要自定义用户模型（AUTH_USER_MODEL），必须在首次 migrate 之前设置好，否则修改会很麻烦。
+
+  django.contrib.contenttypes
+  ContentType 系统：用于权限、通用外键（GenericForeignKey）等。许多第三方包依赖它。
+
+  django.contrib.sessions
+  会话框架（request.session）。需要在 MIDDLEWARE 中启用 SessionMiddleware。
+
+  django.contrib.messages
+  消息框架（flash messages），需要 MessageMiddleware + 模板上下文处理器 django.contrib.messages.context_processors.messages。模板中常用 {% if messages %}{% for m in messages %}...。
+
+  django.contrib.staticfiles
+  开发时提供静态文件的自动查找（runserver 下）并支持 collectstatic。生产环境通常配合 whitenoise 或由 Nginx/CND 托管静态文件。
 * **MIDDLEWARE**
   中间件列表，每一个中间件会在请求/响应经过时处理，比如：
 
