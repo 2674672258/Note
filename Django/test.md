@@ -21,3 +21,4 @@ class getCurrenttime(APIView):
         time_zone = settings.TIME_ZONE
         temp = {'localtime': local_time, 'timezone': time_zone}
         return Response(temp)
+        
