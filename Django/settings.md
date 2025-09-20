@@ -1,4 +1,4 @@
-Django 的 `settings.py` 是整个项目的大脑，它负责管理项目的全局配置，比如数据库、缓存、日志、静态文件、应用注册等等。一般位于项目同名子目录下
+Django 的 `settings.py` 是整个项目的大脑，它负责管理项目的全局配置，比如数据库、缓存、日志、静态文件、应用注册等等。一般位于项目同名子目录下。
 ---
 
 ### 1. **基本配置**
@@ -25,7 +25,21 @@ Django 的 `settings.py` 是整个项目的大脑，它负责管理项目的全�
 
 * **INSTALLED\_APPS**
   注册的应用（app），包括 Django 内置的（如 `django.contrib.admin`）和你自己写的 app。
-  它决定了哪些 app 的模型、模板标签、信号等会被加载。
+  它决定了哪些 app 的模型、模板标签、信号等会被加载。例如：
+  ```python
+  INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'corsheaders',
+    'user',
+    'topic',
+    'message',
+  ]
+  ```
 
 * **MIDDLEWARE**
   中间件列表，每一个中间件会在请求/响应经过时处理，比如：
