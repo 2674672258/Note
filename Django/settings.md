@@ -40,39 +40,49 @@ Django 的 `settings.py` 是整个项目的大脑，它负责管理项目的全�
     'message',
   ]
   ```
-  django.contrib.admin
+  * `django.contrib.admin`
   Django 自带的管理后台。注册了 admin.site、自动发现 admin.py。要启用请在 urls.py 中 path('admin/', admin.site.urls)。
 
-  django.contrib.auth
+  * `django.contrib.auth`
   认证、权限框架（User、Permission、登录/登出、密码哈希等）。如果你要自定义用户模型（AUTH_USER_MODEL），必须在首次 migrate 之前设置好，否则修改会很麻烦。
 
-  django.contrib.contenttypes
+  * `django.contrib.contenttypes`
   ContentType 系统：用于权限、通用外键（GenericForeignKey）等。许多第三方包依赖它。
 
-  django.contrib.sessions
+  * `django.contrib.sessions`
   会话框架（request.session）。需要在 MIDDLEWARE 中启用 SessionMiddleware。
 
-  django.contrib.messages
+  * `django.contrib.messages`
   消息框架（flash messages），需要 MessageMiddleware + 模板上下文处理器 django.contrib.messages.context_processors.messages。模板中常用 {% if messages %}{% for m in messages %}...。
 
-  django.contrib.staticfiles
+  * `django.contrib.staticfiles`
   开发时提供静态文件的自动查找（runserver 下）并支持 collectstatic。生产环境通常配合 whitenoise 或由 Nginx/CND 托管静态文件。
+
 * **MIDDLEWARE**
   中间件列表，每一个中间件会在请求/响应经过时处理，比如：
 
   * `SecurityMiddleware`（安全相关）
   * `SessionMiddleware`（启用会话）
   * `AuthenticationMiddleware`（认证用户）
-  * `CsrfViewMiddleware`（CSRF 防护）
+  * `CsrfViewMiddleware`（CSRF 防护, 前后分离的项目关闭这个中间件）
 
 * **ROOT\_URLCONF**
   项目 URL 配置的入口，一般是 `urls.py`。
+  可以再次配置路由分发，例如：
+  ```python
+  urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('v1/users/', include('user.urls')), # 分发到user模块的urls.py
+    path('v1/topics/', include('topic.urls')),
+    
+  ]
+  ```
 
 * **WSGI\_APPLICATION**
   WSGI 网关配置，告诉 WSGI 服务器入口在哪。
 
 * **ASGI\_APPLICATION**
-  如果用异步（Django Channels 等），会用到 ASGI。
+  如果用异步（Django Channels 等），会用到 ASGI。但是提升有限，原生 ORM 仍会阻塞，需要改用第三方异步 ORM，改动成本大。
 
 ---
 
@@ -96,9 +106,51 @@ DATABASES = {
 ---
 
 ### 4. **模板和静态文件**
-
 * **TEMPLATES**
-  模板引擎配置，决定 Django 如何加载 `.html` 文件，是否支持 Jinja2 等。
+模板引擎配置，决定 Django 如何加载 `.html` 文件，是否支持 Jinja2 等。
+  配置示例:
+  ```python
+  TEMPLATES = [
+      {
+          'BACKEND': 'django.template.backends.django.DjangoTemplates',
+          'DIRS': [],
+          'APP_DIRS': True,
+          'OPTIONS': {
+              'context_processors': [
+                  'django.template.context_processors.debug',
+                  'django.template.context_processors.request',
+                  'django.contrib.auth.context_processors.auth',
+                  'django.contrib.messages.context_processors.messages',
+              ],
+          },
+      },
+  ]
+  ```
+  * `'BACKEND': 'django.template.backends.django.DjangoTemplates'`
+
+    * 指定使用 Django 自带的 **DjangoTemplates** 引擎（默认模板引擎）。Django 也支持 Jinja2 等其他模板引擎，这里就是定义模板后端的入口。
+
+  * `'DIRS': []`
+
+    * 用来设置 **模板文件的额外目录**。
+    * 默认是空列表 `[]`，表示只会去每个 app 下的 `templates/` 文件夹里找模板。
+    * 如果项目中有一个全局模板目录，可以写：
+
+    ```python
+    'DIRS': [BASE_DIR / 'templates']
+    ```
+
+
+  * `'APP_DIRS': True`
+
+    * 表示是否自动在 **每个应用的 `templates/` 文件夹中寻找模板**。
+    * `True` → 会去 `app_name/templates/` 下自动找。
+    * `False` → 就不会去 app 内的 templates 目录中找模板，只会找 `'DIRS'` 里的。
+
+
+  * `'OPTIONS': {...}`
+
+  这个里面定义了一些 **模板系统的额外配置**，其中最常见的是 `context_processors`（上下文处理器）。
 
 * **STATIC\_URL / STATICFILES\_DIRS / STATIC\_ROOT**
 
@@ -117,8 +169,21 @@ DATABASES = {
 ### 5. **认证与安全**
 
 * **AUTH\_PASSWORD\_VALIDATORS**
-  密码校验规则，比如最小长度、复杂度。
-
+  密码校验规则，比如最小长度、复杂度。你可以 自定义密码验证器，例如：
+  ```python
+  class UppercaseValidator:
+      def validate(self, password, user=None):
+          if not any(c.isupper() for c in password):
+              raise ValidationError("密码必须包含至少一个大写字母")
+      def get_help_text(self):
+          return "密码必须包含至少一个大写字母"
+  ```
+  然后在 AUTH_PASSWORD_VALIDATORS 中加上：
+  ```python
+  {
+      'NAME': 'myapp.validators.UppercaseValidator',
+  }
+  ```
 * **AUTH\_USER\_MODEL**
   如果需要自定义用户模型，需要在这里配置。
 
