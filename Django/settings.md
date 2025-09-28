@@ -149,8 +149,7 @@ DATABASES = {
 
 
   * `'OPTIONS': {...}`
-
-  这个里面定义了一些 **模板系统的额外配置**，其中最常见的是 `context_processors`（上下文处理器）。
+    这个里面定义了一些 **模板系统的额外配置**，其中最常见的是 `context_processors`（上下文处理器）。
 
 * **STATIC\_URL / STATICFILES\_DIRS / STATIC\_ROOT**
 
