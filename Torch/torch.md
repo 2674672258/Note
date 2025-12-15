@@ -240,7 +240,7 @@ y = x.reshape(-1, 4)  # -1自动计算
 y = x.view(6, 4)
 y = x.view(-1)        # 展平
 
-# transpose - 转置
+# transpose - 交换维度，仅适用于两个维度的交换场景
 y = x.transpose(0, 1)  # 交换维度0和1
 
 # permute - 重排维度
@@ -1641,9 +1641,6 @@ gn = nn.GroupNorm(num_groups=32, num_channels=128)
 
 # Instance Normalization
 in2d = nn.InstanceNorm2d(num_features=64)
-# Instance Normalization
-in2d = nn.InstanceNorm2d(num_features=64)
-```
 # Instance Normalization
 in2d = nn.InstanceNorm2d(num_features=64)
 ```
